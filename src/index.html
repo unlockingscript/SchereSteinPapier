@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang=de>
+    <head>
+		<meta charset="utf-8">
+		<title>Schere Stein Papier DApp</title>
+        <meta name="author" content = "Pierre Baumann">
+	</head>
+
+    <body>
+        <h1>Willkommen beim Ethereum basierten Schere Stein Papier!</h1>       
+        <h2>Beschreibung...</h2>
+        <button id="connectwallet">Connect wallet</button>
+        <p ><input id="einsatz" type="number" placeholder="Einsatz in ETH">
+        <button id="spielen">Spielen</button></p>
+        <p id="einsatzanzeigen"></p>
+        <h3>Triff deine Wahl:</h3>
+        <ol><li>Schere</li><li>Stein</li><li>Papier</li></ol>
+        <h3>Wähle die Zahl und ein Passwort, um deine Wahl zu verschlüsseln:</h3>
+        <input id="wahl" placeholder="Wahl" type="number"> <input id="passwort" placeholder="Passwort">
+        <button id="wahltreffen">Wahl treffen/verschlüsseln</button>
+        <h3>Bitte bestätige/entschlüssle deine Wahl:</h3>
+        <input id="wahl1" placeholder="Wahl" type="number"> <input id="passwort1" placeholder="Passwort">
+        <button id="wahlbestaetigen">Wahl bestätigen/entschlüsseln</button>
+        <h3>Du hast jeweils 15 min Zeit, um deine Wahl zu treffen und zu entschlüsseln. Hält dein Mitspieler diese Zeit nicht ein, kannst du den Einsatz anfordern!</h3>
+        <button id="einsatzanfordern">Einsatz anfordern</button>
+        <h3>Falls du der Smart Contract owner/Betreiber bist, kannst du hier deinen Verdienst abbuchen:</h3>
+        <button id="abbuchen">Abbuchen</button>
+        <p id="matchSummary"></p>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.4/web3.min.js" integrity="sha512-oMd9Re3VgJcXuZJn9DN6X7S7JUc7xLYZ2UyZ85Mm/xzaW3lwBr4fV2zjuu/n5jY/Of/2JOx35CTa6zvQNxb31Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+   
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/truffle-contract.js"></script>
+        <script src="js/app.js"></script>
+    </body>
+</html>
