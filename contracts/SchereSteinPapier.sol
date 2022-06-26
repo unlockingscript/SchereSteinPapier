@@ -4,13 +4,49 @@
 
 pragma solidity ^0.8.7;
 
+contract Factory {
+
+    address public owner;
+    SchereSteinPapier[] public spiel;
+
+    constructor() {
+        owner = payable(msg.sender);
+    }
+
+    function getBalance() public view returns(uint) {
+        return address(this).balance;
+    }
+
+
+    function erzeugeSpiel() external payable {
+        SchereSteinPapier schereSteinPapier = new SchereSteinPapier(payable(owner));
+        spiel.push(schereSteinPapier);
+    }
+
+    function ETHabheben() public {
+        require (msg.sender == owner, "Nur der Smart Contract owner/Betreiber ist berechtigt!");
+        //require (status == Status.Beginn, "Es wird gerade gespielt!");
+        payable(owner).transfer(address(this).balance);
+
+    }
+
+    receive() external payable{
+
+    }
+
+
+}
+
 contract SchereSteinPapier {
     
     // speichern des Smart Contract owners/Betreibers
-    address public owner;
+    //address public owner;
 
     // speichern der Spieler-Addressen
     address [2] public Spieler;
+
+    // speichern der Adresse des Factory-Contracts
+    address factory;
 
     // speichern des Spieleinsatzes
     uint public Einsatz;
@@ -49,8 +85,9 @@ contract SchereSteinPapier {
     }
 
     // Konstruktor legt owner fest und initialisiert Variablen
-    constructor() public {
-        owner = payable(msg.sender);
+    constructor(address _factory) {
+        //owner = payable(msg.sender);
+        factory = _factory;
         initialisieren();
     }
 
@@ -165,6 +202,7 @@ contract SchereSteinPapier {
                 payable(Spieler[1]).transfer(Einsatz-100000000000000);
             }
         }
+        payable(factory).transfer(address(this).balance);
         initialisieren();
     }
 
@@ -196,9 +234,9 @@ contract SchereSteinPapier {
     }
 
     // Funktion um ETH-Balance abzuheben
-    function ETHabheben() public  {
+    /*function ETHabheben() public  {
         require (msg.sender == owner, "Nur der Smart Contract owner/Betreiber ist berechtigt!");
         require (status == Status.Beginn, "Es wird gerade gespielt!");
         payable(owner).transfer(address(this).balance);
-    }
+    }*/
 }
