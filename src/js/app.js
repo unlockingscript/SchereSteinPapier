@@ -1,137 +1,140 @@
-//const { default: Web3 } = require("web3");
+let web3
+let contract
+let currentAccount = null
 
-let web3;
-let contract;
-let currentAccount = null;
-
-// Attempts to load the Metamask provider and then starts the app
+// Lädt Metamask und startet die App
 async function init() {
-	// const provider = await detectEthereumProvider();
-	// If the provider exists, start the app
-	if(window.ethereum) {
-		await startApp();
+		if(window.ethereum) {
+		await startApp()
 	} else {
-		console.log('Unable to detect the wallet provider');
+		console.log('Unable to detect the wallet provider')
 	}
 }
 
-// 'startApp' initializes all variables needed for the app to run
+// Initialisiert die Variablen für die App
 async function startApp() {
-	// Initialize web3 and the contract
-	//web3 = new Web3(provider);
-  web3 = new Web3(window.ethereum);
-  console.log('web3', web3);
-	contract = loadContract();
+  web3 = new Web3(window.ethereum)
+  console.log('web3', web3)
+	contract = loadContract()
   currentAccount = await ethereum.request({ method: 'eth_accounts'})[0]
-	/*// Set up event listener for a winner
-	if (event.returnValues.Gewinner !== undefined) {
-    contract.events.GewinnerIst()
-		  .on('data', (event) => {
-		  	$('#matchSummary').text('Gewinner ist: ' + event.returnValues.Gewinner);
-		  	console.log(event.returnValues.Gewinner);
-	  	});
-  }
-	// Set up event listener for a draw
-	contract.events.EinsatzIst()
-		.on('data', (event) => {
-			$('#einsatzanzeigen').text('Der Einsatz ist:' + event.returnValues.Einsatz);
-			console.log(event.returnValues.Einsatz);
-		});*/
+	// Event Listeners
+  /*contract.events.GewinnerIst().on('data', (event) => {
+		  	$('#gewinneranzeigen').text('Gewinner ist: ' + event)
+		  	console.log(event.returnValues.Gewinner)
+	  	})
+	contract.events.EinsatzIst().on('data', (event) => {
+			//$('#einsatzanzeigen').text('Der Einsatz ist: ' + event)
+			//console.log(event.returnValues.Einsatz)
+      let Einsatz = document.getElementById('einsatzanzeigen')
+      Einsatz.innerHTML = event.returnValues.Einsatz
+      console.log(Einsatz)
+		})
+    contract.GewinnerIst().watch(function(error, result) {
+      if (!error) {
+        $('#gewinneranzeigen').html('Gewinner ist:' + result.args.Gewinner)
+      } else {
+        console.log(error)
+      }
+    })
+    //$('#einsatzanzeigen').text('Einsatz ist:')
+    contract.EinsatzIst().watch(function(error, result) {
+      if (!error) {
+        $('#einsatzanzeigen').text('Einsatz ist:' + result.args.Einsatz)
+      } else {
+        console.log(error)
+      }
+    })
+    contract.events.EinsatzIst().watch('data', (result) => {
+        $('#einsatzanzeigen').text('Einsatz ist:' + web3.utils.fromWei(result.args.Einsatz, 'wei') + 'ETH')
+    })*/
+    //$('#einsatzanzeigen').text('Einsatz ist:' + web3.utils.fromWei(web3.utils.toBN(1000000000000), 'wei') + 'ETH')
+  contract.events.EinsatzIst().on('data', function(event) {
+      $('#einsatzanzeigen').text('Einsatz ist:' + web3.utils.fromWei(web3.utils.toBN(event), 'wei') + 'ETH')
+  })
 }
 
-// Loads the contract object
+// Lädt den contract
 async function loadContract() {
-	let jsonData = await $.getJSON('SchereSteinPapier.json');
+	let jsonData = await $.getJSON('SchereSteinPapier.json')
   const abi = jsonData.abi
   const networkId = 5777//await web3.eth.net.getID()
   const contractAddr = jsonData.networks[networkId].address
-	let address = '0xDEE6A2943a4Fb683EA9E28d141bad11c94d540e9';
-	contract = new web3.eth.Contract(abi, contractAddr);
-    console.log('contract', contract);
-	return contract;
+	contract = new web3.eth.Contract(abi, contractAddr)
+  console.log('contract', contract)
+	return contract
 }
 
 const getWeb3 = async () => {
   return new Promise(async (reslove, reject) => {
-    //const web3 = new Web3(window.ethereum)
     try {
-      currentAccount = await window.ethereum.request({ method: 'eth_requestAccounts'})
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts'})
+      currentAccount = accounts[0]
+      console.log('account', currentAccount)
       reslove(web3)
     } catch (error) {
       reject(error)
     }
   })
 }
-
-/*document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('connectwallet').addEventListener('click', async () => {
-    const Web3 = await getWeb3()
-  })
-})*/
-// Watch for the 'Enable Ethereum' button to link accounts
-/*async function connectwallet() {
-  // This loads accounts from metamask
-	ethereum.request({ method: 'eth_accounts' })
-	.then(handleAccountsChanged)
-	.catch((err) => {
-		console.error(err);
-	});
-}*/
 	
 async function spielen() {
-	console.log('Spiel beitreten');
+	console.log('Spiel beitreten')
   const einsatz = $('#einsatz').val()
   console.log(currentAccount)
   const transaction = await contract.methods.spielen().send({ from: currentAccount, value: web3.utils.toWei(einsatz, 'ether') })
   console.log(transaction)
-  //await transaction.wait()
-
-//	await contract.methods.spielen().send({from: currentAccount});
 }
 
 async function waehlen() {
-	// Find which choice the user went with
-	let key = $('#passwort').val();
-	let choice = $('#wahl').val();
-	let encodedChoice = web3.utils.keccak256(web3.utils.encodePacked(choice, key));
-	await contract.methods.waehlen(encodedChoice).send({ from: currentAccount })
+	let key = $('#passwort').val()
+	let choice = $('#wahl').val()
+	let encodedChoice = web3.utils.keccak256(web3.utils.encodePacked(choice, key))
+	const trasaction = await contract.methods.waehlen(encodedChoice).send({ from: currentAccount })
+  console.log(trasaction)
 }
 
-// Called when a user want to reveal their choice
 async function wahlentschluesseln() {
-	let key = $('#passwort1').val();
-	let choice = $('wahl1').val();
-	await contract.methods.wahlentschluesseln(choice, key).send({from: currentAccount });
+	let key = $('#passwort1').val()
+	let choice = $('#wahl1').val()
+	const trasaction = await contract.methods.wahlentschluesseln(choice, key).send({from: currentAccount })
+  console.log(trasaction)
 }
 
 async function erstatten() {
-  await contract.methods.erstatten().send({from: currentAccount });
+  const trasaction = await contract.methods.erstatten().send({from: currentAccount })
+  console.log(trasaction)
 }
 
-async function abbuchen() {
-  await contract.methods.abbuchen().send({from: currentAccount });
+async function ETHabheben() {
+  const trasaction = await contract.methods.ETHabheben().send({from: currentAccount })
+  console.log(trasaction)
 }
 
-//$('#connectwallet').click(() => {connectwallet();});	
-
-$('#connectwallet').click(() => {const Web3 = getWeb3();});
-
-// When 'joinMatch' is pressed, the current account is added to the match
-$('#spielen').click(() => {spielen();});
+// Button handler
+$('#connectwallet').click(() => {const Web3 = getWeb3();})
 
 // Button handler
-$('#wahltreffen').click(() => {waehlen();});
+$('#spielen').click(() => {spielen();})
 
 // Button handler
-$('#wahlbestaetigen').click(() => {wahlentschluesseln();});
+$('#wahltreffen').click(() => {waehlen();})
 
 // Button handler
-$('#einsatzanfordern').click(() => {erstatten();});
+$('#wahlbestaetigen').click(() => {wahlentschluesseln();})
 
 // Button handler
-$('#abbuchen').click(() => {abbuchen();});
+$('#einsatzanfordern').click(() => {erstatten();})
 
-init();
+// Button handler
+$('#abbuchen').click(() => {ETHabheben();})
+
+init()
+
+
+
+
+
+
 
 /*function detectEthereumProvider({ mustBeMetaMask = false, silent = false, timeout = 3000, } = {}) {
   _validateInputs();
